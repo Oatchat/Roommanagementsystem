@@ -28,7 +28,7 @@ const menuItems = [
 </script>
 
 <template>
-  <nav class="fixed bottom-0 w-full md:left-0 md:top-0 md:w-64 md:h-full bg-white border-t md:border-t-0 md:border-r border-slate-200 z-50">
+  <nav class="fixed bottom-0 w-full md:left-0 md:top-0 md:w-64 md:h-full bg-white border-t md:border-t-0 md:border-r border-slate-200 z-50 pb-[env(safe-area-inset-bottom)] md:pb-0">
     <div class="p-6 hidden md:block border-b border-slate-100">
       <div class="flex items-center gap-3">
         <div class="bg-green-700 p-2 rounded-xl text-white shadow-lg shadow-green-200">

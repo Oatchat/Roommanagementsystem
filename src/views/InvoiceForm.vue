@@ -138,7 +138,7 @@ const handleSave = () => {
               </select>
             </div>
             <div class="space-y-3">
-              <label class="text-xs font-black text-slate-400 uppercase tracking-widest px-2">พ.ศ.</label>
+              <label class="text-xs font-black text-slate-400 uppercase tracking-widest px-2">ปี</label>
               <input type="number" v-model="formData.year" class="w-full bg-slate-50 border-0 rounded-2xl p-4 font-bold focus:ring-4 focus:ring-green-500/10 transition-all" />
             </div>
           </div>

@@ -1,15 +1,16 @@
 <script setup>
 import { computed } from 'vue';
-import { 
-  BarChart3, 
-  TrendingUp, 
-  TrendingDown, 
-  Wallet, 
-  Banknote, 
-  ArrowUpRight, 
+import {
+  BarChart3,
+  TrendingUp,
+  TrendingDown,
+  Wallet,
+  Banknote,
+  ArrowUpRight,
   ArrowDownRight,
   Filter
 } from 'lucide-vue-next';
+import { toCE } from '../utils/date';
 
 const props = defineProps(['invoices', 'expenses']);
 
@@ -23,13 +24,12 @@ const reportData = computed(() => {
 
     // Process Invoices (Revenue)
     props.invoices.forEach(inv => {
-        const key = `${inv.month} ${inv.year}`;
+        const key = `${inv.month} ${toCE(inv.year)}`;
         if (!monthlyData[key]) {
             monthlyData[key] = { monthYear: key, revenue: 0, expense: 0, profit: 0, invoiceCount: 0, rawDate: inv.createdAt || 0 };
         }
         monthlyData[key].revenue += (inv.grandTotal || 0);
         monthlyData[key].invoiceCount += 1;
-        // Keep the latest createdAt to sort
         if (inv.createdAt > monthlyData[key].rawDate) monthlyData[key].rawDate = inv.createdAt;
     });
 
@@ -39,7 +39,7 @@ const reportData = computed(() => {
         const month = thaiMonths[exDate.getMonth()];
         const year = exDate.getFullYear();
         const key = `${month} ${year}`;
-        
+
         if (!monthlyData[key]) {
             monthlyData[key] = { monthYear: key, revenue: 0, expense: 0, profit: 0, invoiceCount: 0, rawDate: ex.createdAt || 0 };
         }

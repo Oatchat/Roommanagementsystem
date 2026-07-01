@@ -128,32 +128,26 @@ const showToast = (msg = 'สำเร็จ!', duration = 3000) => {
   setTimeout(() => copySuccess.value = false, duration);
 };
 
-const handleProcessInvoice = async (invoice, tenantId, newMeter) => {
+const handleSaveInvoice = async (invoice, tenantId = null, newMeter = null) => {
   isProcessing.value = true;
-  console.log("🚀 Processing Invoice for Tenant:", tenantId, "with new meter:", newMeter);
   try {
     const { id, ...invoiceData } = invoice;
-    
-    // 1. Save the Invoice
+
     await addDoc(collection(db, 'invoices'), {
         ...invoiceData,
         createdAt: Date.now()
     });
-    console.log("✅ Invoice successfully saved to Firestore");
 
-    // 2. Update the Tenant's Meter
-    const tenantRef = doc(db, 'tenants', tenantId);
-    await updateDoc(tenantRef, {
-      electricityPrev: newMeter
-    });
-    console.log("✅ Tenant meter successfully updated");
+    if (tenantId && newMeter !== null && newMeter !== undefined) {
+      const tenantRef = doc(db, 'tenants', tenantId);
+      await updateDoc(tenantRef, { electricityPrev: newMeter });
+    }
 
     activeTab.value = 'history';
     showToast('บันทึกบิลสำเร็จ!');
   } catch (e) {
-    console.error("❌ Error processing invoice:", e);
-    // Show a more detailed alert to the user
-    alert(`เกิดข้อผิดพลาด: ${e.message}\nโปรดตรวจสอบการตั้งค่า Firebase และสิทธิ์การเข้าถึง (Security Rules)`);
+    console.error("Error saving invoice:", e);
+    alert(`เกิดข้อผิดพลาด: ${e.message}`);
   } finally {
     isProcessing.value = false;
   }
@@ -310,7 +304,7 @@ const handleDeleteExpense = async (id) => {
     </div>
 
     <!-- Main Content -->
-    <main class="flex-1 md:ml-64 p-6 pb-24 md:pb-8">
+    <main class="flex-1 md:ml-64 p-6 pb-[calc(7rem+env(safe-area-inset-bottom))] md:pb-8">
       <div v-if="loading" class="flex items-center justify-center h-full">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700"></div>
       </div>
@@ -339,18 +333,19 @@ const handleDeleteExpense = async (id) => {
           :expenses="expenses"
         />
         
-        <InvoiceForm 
-          v-if="activeTab === 'create'" 
-          :tenants="tenants" 
+        <InvoiceForm
+          v-if="activeTab === 'create'"
+          :tenants="tenants"
           :ownerSettings="ownerSettings"
           :isProcessing="isProcessing"
-          @save="handleProcessInvoice"
+          @save="handleSaveInvoice"
         />
 
         <MoveInBilling
           v-if="activeTab === 'move-in'"
           :tenants="tenants"
           :ownerSettings="ownerSettings"
+          :isProcessing="isProcessing"
           @save="handleSaveInvoice"
         />
         

@@ -1,0 +1,27 @@
+rules_version = '2';
+
+// ================================================================
+// พี่ปุ้ยห้องพัก — Single-owner Firestore rules
+// ----------------------------------------------------------------
+// อนุญาตให้เฉพาะอีเมลใน allowedEmails เท่านั้นที่อ่าน/เขียนข้อมูล
+// ก่อน deploy: ใส่อีเมลเจ้าของหอในลิสต์ด้านล่าง
+// Deploy: firebase deploy --only firestore:rules
+// ================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner() {
+      return request.auth != null
+        && request.auth.token.email in [
+          'nutthapolkumket@gmail.com'
+          // เพิ่มอีเมลอื่นได้ที่นี่ เช่น 'staff@example.com'
+        ];
+    }
+
+    // ทุก collection ในระบบ (tenants, invoices, expenses, config)
+    match /{document=**} {
+      allow read, write: if isOwner();
+    }
+  }
+}

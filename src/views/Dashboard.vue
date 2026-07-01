@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Receipt, Building2, Clock, Banknote, ArrowRight, Wallet, TrendingUp } from 'lucide-vue-next';
+import { toCE } from '../utils/date';
 
 const props = defineProps(['invoices', 'tenants', 'ownerSettings', 'expenses']);
 const emit = defineEmits(['navigate']);
@@ -17,8 +18,9 @@ const activeTenantsCount = computed(() => props.tenants.length);
 const occupiedRooms = computed(() => props.tenants.filter(t => t.active).length);
 
 const monthlyStats = computed(() => {
-  const thisMonthInvoices = props.invoices.filter(inv => 
-    inv.month === currentMonth && (inv.year?.toString() === currentYear.toString())
+  const currentYearCE = String(currentYear);
+  const thisMonthInvoices = props.invoices.filter(inv =>
+    inv.month === currentMonth && toCE(inv.year) === currentYearCE
   );
   
   // Expenses this month
