@@ -1,12 +1,36 @@
 <script setup>
-import { Printer, Copy, X } from 'lucide-vue-next';
+import { ref } from 'vue';
+import { Download, Copy, X } from 'lucide-vue-next';
+import { toPng } from 'html-to-image';
 import InvoicePreview from './InvoicePreview.vue';
 
 const props = defineProps(['invoice']);
 const emit = defineEmits(['close', 'toast']);
 
-const printInvoice = () => {
-  window.print();
+const invoiceRef = ref(null);
+const isSaving = ref(false);
+
+const saveAsImage = async () => {
+  if (!invoiceRef.value || isSaving.value) return;
+  isSaving.value = true;
+  try {
+    const dataUrl = await toPng(invoiceRef.value, {
+      pixelRatio: 2,
+      backgroundColor: '#ffffff',
+      cacheBust: true,
+    });
+    const { roomNumber, month, year } = props.invoice;
+    const safe = (v) => String(v ?? '').replace(/[\\/:*?"<>|]/g, '').trim();
+    const filename = `invoice-${safe(roomNumber)}-${safe(month)}-${safe(year)}.png`;
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = dataUrl;
+    link.click();
+  } catch (err) {
+    console.error('Save image failed', err);
+  } finally {
+    isSaving.value = false;
+  }
 };
 
 const copyToClipboard = (text) => {
@@ -60,12 +84,13 @@ const shareInvoice = () => {
         <div class="sticky top-0 right-0 z-50 flex justify-between items-center mb-8 no-print bg-white/80 backdrop-blur pb-4">
             <h3 class="text-xl font-black uppercase tracking-widest text-slate-400 italic">Invoice Viewer</h3>
             <div class="flex gap-3">
-                <button 
-                    @click="printInvoice" 
-                    class="bg-green-700 text-white px-6 py-3 rounded-2xl font-black flex items-center gap-2 hover:bg-green-800 shadow-xl shadow-green-200 transition-all"
+                <button
+                    @click="saveAsImage"
+                    :disabled="isSaving"
+                    class="bg-green-700 text-white px-6 py-3 rounded-2xl font-black flex items-center gap-2 hover:bg-green-800 shadow-xl shadow-green-200 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                    <Printer class="w-5 h-5" />
-                    พิมพ์/บันทึก PDF
+                    <Download class="w-5 h-5" />
+                    {{ isSaving ? 'กำลังบันทึก...' : 'บันทึกรูป' }}
                 </button>
                 <button 
                     @click="shareInvoice"
@@ -83,7 +108,7 @@ const shareInvoice = () => {
             </div>
         </div>
 
-        <div class="bg-slate-50 p-8 rounded-[32px] border border-slate-100">
+        <div ref="invoiceRef" class="bg-slate-50 p-8 rounded-[32px] border border-slate-100">
             <InvoicePreview :data="invoice" />
         </div>
       </div>
