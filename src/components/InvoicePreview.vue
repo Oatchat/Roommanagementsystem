@@ -49,7 +49,10 @@ const props = defineProps(['data']);
             <CreditCard class="w-3 h-3" />
             Payment Account / ช่องทางชำระเงิน
         </div>
-        <div class="text-base font-black text-slate-900 mb-1 leading-tight">{{ data.bankInfo }}</div>
+        <div class="text-base font-black text-slate-900 mb-1 leading-tight">
+            <div>{{ data.bankInfo.replace(/\s*\d[\d\-\s]*$/, '') }}</div>
+            <div>{{ (data.bankInfo.match(/\d[\d\-\s]*$/) || [''])[0].trim() }}</div>
+        </div>
         <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{{ data.apartmentName }}</div>
       </div>
     </div>
@@ -88,13 +91,13 @@ const props = defineProps(['data']);
                     <div class="col-span-3 text-right font-black text-2xl italic text-slate-900">{{ data.keyCardFee?.toLocaleString() }}</div>
                 </div>
 
-                <div v-if="data.otherFees > 0" class="grid grid-cols-12 gap-4 bg-white p-4 rounded-2xl border border-slate-100 items-center">
+                <div v-if="data.otherFees > 0 || data.otherFeesNote" class="grid grid-cols-12 gap-4 bg-white p-4 rounded-2xl border border-slate-100 items-center">
                     <div class="col-span-7">
                         <div class="font-black text-slate-900 text-lg">อื่นๆ (Other Charges)</div>
                         <div v-if="data.otherFeesNote" class="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1">{{ data.otherFeesNote }}</div>
                     </div>
-                    <div class="col-span-2 text-center text-xs font-black text-slate-400 uppercase italic">Adjusted</div>
-                    <div class="col-span-3 text-right font-black text-2xl italic text-slate-900">{{ data.otherFees?.toLocaleString() }}</div>
+                    <div class="col-span-2 text-center text-xs font-black text-slate-400 uppercase italic">{{ data.otherFees > 0 ? 'Adjusted' : 'Note' }}</div>
+                    <div class="col-span-3 text-right font-black text-2xl italic text-slate-900">{{ data.otherFees > 0 ? data.otherFees?.toLocaleString() : '-' }}</div>
                 </div>
             </template>
 
